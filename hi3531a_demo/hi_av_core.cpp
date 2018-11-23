@@ -1,0 +1,1 @@
+#include "hi_av_core.h"
