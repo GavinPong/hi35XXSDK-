@@ -69,7 +69,7 @@ int32_t HI_VO_GetIntSync(VO_INTF_SYNC_E *enIntfSync, uint32_t u32W,uint32_t u32H
 	return ret;
 }
 
-int32_t HI_VO_GetPixelFormat(PIXEL_FORMAT_E *penPixelFormat, char *strPixelFormat)
+int32_t HI_VO_GetPixelFormat(PIXEL_FORMAT_E *penPixelFormat, const char *strPixelFormat)
 {
 	if (!penPixelFormat || !strPixelFormat)
 	{
@@ -209,6 +209,113 @@ int32_t HI_VO_GetPixelFormat(PIXEL_FORMAT_E *penPixelFormat, char *strPixelForma
 	return 0;
 }
 
+int32_t HI_VO_GetHdmiVideoFormat(HI_HDMI_VIDEO_FMT_E *enVideoFmt, const char *strIntfSync)
+{
+	if (!enVideoFmt || strIntfSync)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:param was null!", __FUNCTION__, __LINE__);
+		return -1;
+	}
+	if (strstr(strIntfSync, "pal"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_PAL;
+	}
+	else if (strstr(strIntfSync, "ntsc"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_NTSC;
+	}
+	else if (strstr(strIntfSync, "1080P24"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_1080P_24;
+	}
+	else if (strstr(strIntfSync, "1080P25"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_1080P_25;
+	}
+	else if (strstr(strIntfSync, "1080P30"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_1080P_30;
+	}
+	else if (strstr(strIntfSync, "720P50"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_720P_50;
+	}
+	else if (strstr(strIntfSync, "720P60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_720P_60;
+	}
+	else if (strstr(strIntfSync, "1080I50"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_1080i_50;
+	}
+	else if (strstr(strIntfSync, "1080I60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_1080i_60;
+	}
+	else if (strstr(strIntfSync, "1080P50"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_1080P_50;
+	}
+	else if (strstr(strIntfSync, "1080P60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_1080P_60;
+	}
+	else if (strstr(strIntfSync, "576P50"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_576P_50;
+	}
+	else if (strstr(strIntfSync, "480P60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_480P_60;
+	}
+	else if (strstr(strIntfSync, "800x600_60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_VESA_800X600_60;
+	}
+	else if (strstr(strIntfSync, "1024x768_60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_VESA_1024X768_60;
+	}
+	else if (strstr(strIntfSync, "1280x1024_60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_VESA_1280X1024_60;
+	}
+	else if (strstr(strIntfSync, "1366x768_60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_VESA_1366X768_60;
+	}
+	else if (strstr(strIntfSync, "1440x900_60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_VESA_1440X900_60;
+	}
+	else if (strstr(strIntfSync, "1280x800_60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_VESA_1280X800_60;
+	}
+	else if (strstr(strIntfSync, "1600x1200_60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_VESA_1600X1200_60;
+	}
+	else if (strstr(strIntfSync, "2560x1440_30"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_2560x1440_30;
+	}
+	else if (strstr(strIntfSync, "2560x1600_60"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_2560x1600_60;
+	}
+	else if (strstr(strIntfSync, "3840x2160_30"))
+	{
+		*enVideoFmt = HI_HDMI_VIDEO_FMT_3840X2160P_30;
+	}
+	else
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:param %s unknown!", __FUNCTION__, __LINE__, strIntfSync);
+		return -2;
+	}
+	return 0;
+}
+
 int32_t HI_VO_StartDev(hi_vo_dev_param_t *pstVoDevParam)
 {
 	VO_PUB_ATTR_S stPubAttr;
@@ -234,11 +341,15 @@ int32_t HI_VO_StartDev(hi_vo_dev_param_t *pstVoDevParam)
 	}
 	if (strstr(pstVoDevParam->m_strIntfTypeName, "hdmi"))
 	{
-		stPubAttr.enIntfSync |= VO_INTF_HDMI
+		stPubAttr.enIntfSync |= VO_INTF_HDMI;
 	}
 	if (strstr(pstVoDevParam->m_strIntfTypeName, "bt1120"))
 	{
-		stPubAttr.enIntfSync |= VO_INTF_BT1120
+		stPubAttr.enIntfSync |= VO_INTF_BT1120;
+	}
+	if (strstr(pstVoDevParam->m_strIntfTypeName, "cvbs"))
+	{
+		stPubAttr.enIntfSync |= VO_INTF_CVBS;
 	}
 	s32Ret = HI_MPI_VO_SetPubAttr(pstVoDevParam->m_u32VoDevID, &stPubAttr);
 	if (s32Ret != HI_SUCCESS)
@@ -332,14 +443,103 @@ int32_t HI_VOStopVoLayer(int32_t i32VoLayerID)
 	return 0;
 }
 
-int32_t HI_VO_StartHdmi(int32_t i32HdmiID)
+int32_t HI_VO_StartHdmi(hi_hdmi_param_t *pstHdmiParam)
 {
+	HI_HDMI_ATTR_S      stAttr;
+	HI_HDMI_VIDEO_FMT_E enVideoFmt;
+	HI_HDMI_INIT_PARA_S stHdmiPara;
+	HI_S32 s32Ret = HI_SUCCESS;
 
+	if (!pstHdmiParam)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:param was null!", __FUNCTION__, __LINE__);
+		return -1;
+	}
+	HI_VO_GetHdmiVideoFormat(&enVideoFmt, pstHdmiParam->m_strIntfSync);
+	stHdmiPara.pfnHdmiEventCallback = NULL;
+	stHdmiPara.pCallBackArgs = NULL;
+	stHdmiPara.enForceMode = HI_HDMI_FORCE_HDMI;
+	s32Ret = HI_MPI_HDMI_Init(&stHdmiPara);
+	if (HI_SUCCESS != s32Ret)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_Init failed with:%#x!", __FUNCTION__, __LINE__, s32Ret);
+		return -2;
+	}
+
+	s32Ret = HI_MPI_HDMI_Open(pstHdmiParam->m_i32HdmiID);
+	if (HI_SUCCESS != s32Ret)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_Open[%d] failed with:%#x!", __FUNCTION__, __LINE__, pstHdmiParam->m_i32HdmiID, s32Ret);
+		return -3;
+	}
+	s32Ret = HI_MPI_HDMI_GetAttr(pstHdmiParam->m_i32HdmiID, &stAttr);
+	if (HI_SUCCESS != s32Ret)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_GetAttr[%d] failed with:%#x!", __FUNCTION__, __LINE__, pstHdmiParam->m_i32HdmiID, s32Ret);
+		return -4;
+	}
+	stAttr.bEnableHdmi = HI_TRUE;
+
+	stAttr.bEnableVideo = HI_TRUE;
+	stAttr.enVideoFmt = enVideoFmt;
+
+	stAttr.enVidOutMode = HI_HDMI_VIDEO_MODE_YCBCR444;
+	stAttr.enDeepColorMode = HI_HDMI_DEEP_COLOR_OFF;
+	stAttr.bxvYCCMode = HI_FALSE;
+
+	stAttr.bEnableAudio = pstHdmiParam->m_bEnableAudio;
+	stAttr.enSoundIntf = HI_HDMI_SND_INTERFACE_I2S;
+	stAttr.bIsMultiChannel = HI_FALSE;
+
+	stAttr.enBitDepth = pstHdmiParam->m_i32AudioBitDepth;
+
+	stAttr.bEnableAviInfoFrame = HI_TRUE;
+	stAttr.bEnableAudInfoFrame = HI_TRUE;
+	stAttr.bEnableSpdInfoFrame = HI_FALSE;
+	stAttr.bEnableMpegInfoFrame = HI_FALSE;
+
+	stAttr.bDebugFlag = HI_FALSE;          
+	stAttr.bHDCPEnable = pstHdmiParam->m_bHDCPEnable;
+
+	stAttr.b3DEnable = HI_FALSE;
+
+	s32Ret = HI_MPI_HDMI_SetAttr(pstHdmiParam->m_i32HdmiID, &stAttr);
+	if (HI_SUCCESS != s32Ret)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_SetAttr[%d] failed with:%#x!", __FUNCTION__, __LINE__, pstHdmiParam->m_i32HdmiID, s32Ret);
+		return -5;
+	}
+	s32Ret = HI_MPI_HDMI_Start(pstHdmiParam->m_i32HdmiID);
+	if (HI_SUCCESS != s32Ret)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_Start[%d] failed with:%#x!", __FUNCTION__, __LINE__, pstHdmiParam->m_i32HdmiID, s32Ret);
+		return -5;
+	}
 	return 0;
 }
 
 int32_t HI_VO_StopHdmi(int32_t i32HdmiID)
 {
+	HI_S32 s32Ret = HI_SUCCESS;
+
+	s32Ret = HI_MPI_HDMI_Stop(i32HdmiID);
+	if (HI_SUCCESS != s32Ret)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_Stop[%d] failed with:%#x!", __FUNCTION__, __LINE__, i32HdmiID, s32Ret);
+		return -1;
+	}
+	s32Ret = HI_MPI_HDMI_Close(HI_HDMI_ID_0);
+	if (HI_SUCCESS != s32Ret)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_Close[%d] failed with:%#x!", __FUNCTION__, __LINE__, i32HdmiID, s32Ret);
+		return -2;
+	}
+	s32Ret = HI_MPI_HDMI_DeInit();
+	if (HI_SUCCESS != s32Ret)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_Close[%d] failed with:%#x!", __FUNCTION__, __LINE__, i32HdmiID, s32Ret);
+		return -3;
+	}
 
 	return 0;
 }

@@ -33,7 +33,10 @@ typedef struct _hi_vo_layer_param_s{
 //hdmi参数
 typedef struct _hi_hdmi_param_s{
 	int32_t m_i32HdmiID;			//HDMI ID
-
+	char m_strIntfSync[16];			//接口时序 如720p50/pal/ntsc
+	uint8_t m_bHDCPEnable;			//HDCP使能
+	uint8_t m_bEnableAudio;			//使能音频
+	int32_t m_i32AudioBitDepth;		//需要与AO一致
 }hi_hdmi_param_t;
 
 //设备操作
@@ -45,7 +48,7 @@ int32_t HI_VO_StartVoLayer(hi_vo_layer_param_t *pstVoLayerParam);
 int32_t HI_VOStopVoLayer(int32_t i32VoLayerID);
 
 //HDMI操作
-int32_t HI_VO_StartHdmi(int32_t i32HdmiID);
+int32_t HI_VO_StartHdmi(hi_hdmi_param_t *pstHdmiParam);
 int32_t HI_VO_StopHdmi(int32_t i32HdmiID);
 
 #ifdef __cplusplus
