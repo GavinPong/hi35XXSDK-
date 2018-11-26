@@ -16,6 +16,11 @@
 	(pstFbInfo) = (struct _hi_fb_info_s *)(handle);\
 }while(0);
 
+typedef enum _hi_fb_pixel_format_e{
+	HI_FB_PIXEL_FORMAT_UNKNOWN,
+	HI_FB_PIXEL_FORMAT_ARGB1555,
+	HI_FB_PIXEL_FORMAT_ARGB8888,
+}hi_fb_pixel_format_e;
 
 typedef enum _hi_fb_inited_e{
 	HI_FB_UNINITED,					//未初始化
@@ -26,6 +31,7 @@ typedef struct _hi_fb_info_s{
 	struct list_head m_stListNode;	
 	int32_t m_i32Fd;						//fb设备句柄
 	char m_strDevName[32];					//设备名
+	hi_fb_pixel_format_e m_enPixFormat;		//像素格式
 }hi_fb_info_t;
 
 typedef struct _hi_fb_ctx_s{
@@ -148,7 +154,8 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 	int32_t i32Fd = -1;
 	HI_BOOL bShow;
 	void *pShowScreen = NULL;
-	 HIFB_POINT_S stPoint = {0};
+	HIFB_POINT_S stPoint = {0};
+	hi_fb_pixel_format_e enPixFormt = HI_FB_PIXEL_FORMAT_UNKNOWN;
 	
 	//1.初始化fb模块
 	HI_FB_Init();
@@ -192,18 +199,21 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 		strVarScreenInfoVar.green = s_g16;
 		strVarScreenInfoVar.blue = s_b16;
 		strVarScreenInfoVar.bits_per_pixel = 16;
+		enPixFormt = HI_FB_PIXEL_FORMAT_ARGB1555;
 	}else if (32 == pstGraphicsLayerParam->m_u32BitsPerPixel){
 		strVarScreenInfoVar.transp= s_a32;
 		strVarScreenInfoVar.red = s_r32;
 		strVarScreenInfoVar.green = s_g32;
 		strVarScreenInfoVar.blue = s_b32;
 		strVarScreenInfoVar.bits_per_pixel = 32;
+		enPixFormt = HI_FB_PIXEL_FORMAT_ARGB8888;
 	}else{
 		strVarScreenInfoVar.transp= s_a16;
 		strVarScreenInfoVar.red = s_r16;
 		strVarScreenInfoVar.green = s_g16;
 		strVarScreenInfoVar.blue = s_b16;
 		strVarScreenInfoVar.bits_per_pixel = 16;
+		enPixFormt = HI_FB_PIXEL_FORMAT_ARGB1555;
 	}
 	strVarScreenInfoVar.activate = FB_ACTIVATE_NOW;
 	if (ioctl(i32Fd, FBIOPUT_VSCREENINFO, &strVarScreenInfoVar) < 0)
@@ -254,6 +264,7 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 	}
 	plat_sprintf(pstfbInfo->m_strDevName, sizeof(pstfbInfo->m_strDevName), "%s", strFbFileName);
 	pstfbInfo->m_i32Fd = i32Fd;
+	pstfbInfo->m_enPixFormat = enPixFormt;
 	pthread_mutex_lock(&s_stHifbCtx.m_FbInfoListHeadMutex);
 	list_add(&pstfbInfo->m_stListNode, &s_stHifbCtx.m_strFbInfoListHead);
 	pthread_mutex_unlock(&s_stHifbCtx.m_FbInfoListHeadMutex);
@@ -384,5 +395,95 @@ int32_t HI_FB_ClearScreen(hi_fb_handle fb_handle)
 	}
 	munmap(pShowScreen, stFixScreenInfo.smem_len);
 
+	return 0;
+}
+
+int32_t HI_FB_GetAlpha(hi_fb_handle fb_handle,hi_fb_alpha_param_t *pstAplphaParam)
+{
+	HIFB_ALPHA_S stAlpha;
+	hi_fb_info_t *pstHiFbInfo = NULL;
+
+	if (!pstAplphaParam)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s param was null!", __FUNCTION__, __LINE__);
+		return -1;
+	}
+	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
+
+
+	if (ioctl(pstHiFbInfo->m_i32Fd, FBIOGET_ALPHA_HIFB,  &stAlpha) < 0)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s FBIOGET_ALPHA_HIFB failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -2;
+	}
+	pstAplphaParam->m_bAlphaOverlay = (HI_TRUE == stAlpha.bAlphaEnable?1 : 0);
+	pstAplphaParam->m_bAlphaOverlay = (HI_TRUE == stAlpha.bAlphaChannel?1 : 0);
+	pstAplphaParam->m_u8OverlayValue0 = stAlpha.u8Alpha0;
+	pstAplphaParam->m_u8OverlayValue1 = stAlpha.u8Alpha1;
+	pstAplphaParam->m_u8OverlayValue1 = stAlpha.u8Alpha0;
+	pstAplphaParam->m_u8ChnValue = stAlpha.u8GlobalAlpha;
+
+	return 0;
+}
+
+int32_t HI_FB_SetAlpha(hi_fb_handle fb_handle,hi_fb_alpha_param_t stAplphaParam)
+{
+	HIFB_ALPHA_S stAlpha;
+	hi_fb_info_t *pstHiFbInfo = NULL;
+
+	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
+
+	if HI_FB_PIXEL_FORMAT_ARGB1555 == (pstHiFbInfo->m_enPixFormat)
+	{
+	}
+	stAlpha.bAlphaEnable = (1 ==stAplphaParam.m_bAlphaOverlay?HI_TRUE : HI_FALSE);
+	stAlpha.u8Alpha0 = stAplphaParam.m_u8OverlayValue0;
+	stAlpha.u8Alpha1 = stAplphaParam.m_u8OverlayValue1;
+	stAlpha.bAlphaEnable = (1 ==stAplphaParam.m_bAlphaChn?HI_TRUE : HI_FALSE);
+	stAlpha.u8GlobalAlpha = stAplphaParam.m_u8ChnValue;
+	if (ioctl(pstHiFbInfo->m_i32Fd, FBIOPUT_ALPHA_HIFB,  &stAlpha) < 0)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s FBIOPUT_ALPHA_HIFB failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -2;
+	}
+	return 0;
+}
+
+int32_t HI_FB_GetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t *pstColorkeyParam)
+{
+	hi_fb_info_t *pstHiFbInfo = NULL;
+	HIFB_COLORKEY_S stColorKey;
+
+	if (!pstColorkeyParam)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s param was null!", __FUNCTION__, __LINE__);
+		return -1;
+	}
+	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
+	s32Ret = ioctl(pstInfo->fd, FBIOGET_COLORKEY_HIFB, &stColorKey);
+	if (s32Ret < 0)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s set colorkey failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -2;
+	}
+	pstColorkeyParam->m_bEnable = stColorKey.bKeyEnable;
+	pstColorkeyParam->m_u32ColorKeyValue = stColorKey.u32Key;
+	return 0;
+}
+
+int32_t HI_FB_SetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t stColorkeyParam)
+{
+	hi_fb_info_t *pstHiFbInfo = NULL;
+	HIFB_COLORKEY_S stColorKey;
+
+	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
+	stColorKey.bKeyEnable = (1 == stColorkeyParam.m_bEnable?HI_TRUE : HI_FALSE);
+	stColorKey.u32Key = stColorkeyParam.m_u32ColorKeyValue;
+	s32Ret = ioctl(pstInfo->fd, FBIOPUT_COLORKEY_HIFB, &stColorKey);
+	if (s32Ret < 0)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s set colorkey failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -2;
+	}
 	return 0;
 }

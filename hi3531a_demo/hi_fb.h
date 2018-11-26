@@ -22,6 +22,19 @@ typedef struct _hi_fb_point_s{
 	int32_t m_s32YPos;         /**<  vertical position */
 }hi_fb_point_t;
 
+typedef struct _hi_fb_alpha_param_s{
+	uint8_t m_bAlphaOverlay;	//叠加使能
+	uint8_t m_bAlphaChn;		//通道使能
+	uint8_t m_u8OverlayValue0;	//RGB1555最高位为1时叠加的alpha值
+	uint8_t m_u8OverlayValue1;	//RGB1555最高位为0时叠加的alpha值
+	uint8_t m_u8ChnValue;		//通道alpha值
+}hi_fb_alpha_param_t;
+
+typedef struct _hi_fb_colorkey_param_s{
+	uint8_t m_bEnable;				//使能colorkey功能
+	uint32_t m_u32ColorKeyValue;	//colorkey值
+}hi_fb_colorkey_param_t;
+
 typedef struct _hi_fb_screen_info_s{
 	uint32_t m_u32DisResWidth;				//设备显示分辨率宽
 	uint32_t m_u32DisResHeight;				//设备显示分辨率高
@@ -115,6 +128,43 @@ int32_t HI_FB_SetScreeInfo(hi_fb_handle fb_handle, hi_fb_screen_info_t stScreenI
 * 返回值：	0-成功，其他值-失败
 ********************************************************************************************/
 int32_t HI_FB_ClearScreen(hi_fb_handle fb_handle);
+/********************************************************************************************
+* 函 数 名：	HI_FB_GetAlpha
+* 功    能：获取alpha参数
+* 参数：
+		|--fb_handle	：存储图层资源的句柄
+		|--pstAplphaParam：存储alpha参数地址
+* 返回值：	0-成功，其他值-失败
+********************************************************************************************/
+int32_t HI_FB_GetAlpha(hi_fb_handle fb_handle,hi_fb_alpha_param_t *pstAplphaParam);
+/********************************************************************************************
+* 函 数 名：	HI_FB_SetAlpha
+* 功    能：设置alpha参数
+* 参数：
+		|--fb_handle	：存储图层资源的句柄
+		|--stAplphaParam: alpha参数
+* 返回值：	0-成功，其他值-失败
+********************************************************************************************/
+int32_t HI_FB_SetAlpha(hi_fb_handle fb_handle,hi_fb_alpha_param_t stAplphaParam);
+
+/********************************************************************************************
+* 函 数 名：	HI_FB_GetColorkey
+* 功    能：获取colorkey参数
+* 参数：
+		|--fb_handle	：存储图层资源的句柄
+		|--pstColorkeyParam：存储colorkey参数地址
+* 返回值：	0-成功，其他值-失败
+********************************************************************************************/
+int32_t HI_FB_GetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t *pstColorkeyParam);
+/********************************************************************************************
+* 函 数 名：	HI_FB_SetColorkey
+* 功    能：设置colorkey参数
+* 参数：
+		|--fb_handle	：存储图层资源的句柄
+		|--stColorkeyParam: colorkey参数
+* 返回值：	0-成功，其他值-失败
+********************************************************************************************/
+int32_t HI_FB_SetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t stColorkeyParam);
 
 #ifdef __cplusplus
 #if __cplusplus
