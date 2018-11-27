@@ -22,6 +22,22 @@ typedef struct _hi_fb_point_s{
 	int32_t m_s32YPos;         /**<  vertical position */
 }hi_fb_point_t;
 
+typedef struct _hi_fb_rect_s{
+	int32_t m_s32XPos;         /**<  horizontal position */
+	int32_t m_s32YPos;         /**<  vertical position */
+	uint32_t m_u32Width;	   /**<  horizontal width */
+	uint32_t m_u32Height;	   /**<  vertical height */
+}hi_fb_rect_t;
+
+//画布参数
+typedef struct _hi_fb_canvas_s{
+	uint32_t  m_u32PhyAddr;     /**<  start physical address */
+	uint32_t  m_u32Width;       /**<  width pixels */
+	uint32_t  m_u32Height;      /**<  height pixels */   
+	uint32_t  m_u32Pitch;       /**<  line pixels */         
+	char m_strColorFmt[16];		/**<  color format */ 
+}hi_fb_canvas_t;
+
 typedef struct _hi_fb_alpha_param_s{
 	uint8_t m_bAlphaOverlay;	//叠加使能
 	uint8_t m_bAlphaChn;		//通道使能
@@ -34,6 +50,18 @@ typedef struct _hi_fb_colorkey_param_s{
 	uint8_t m_bEnable;				//使能colorkey功能
 	uint32_t m_u32ColorKeyValue;	//colorkey值
 }hi_fb_colorkey_param_t;
+
+//标准显示参数
+typedef struct _hi_fb_pan_display_param_s{
+	uint32_t m_u32PosX;				//显示的起始位置X坐标posx + 实际分辨率 不能大于最大虚拟分辨率
+	uint32_t m_u32PosY;				//显示的起始位置Y坐标posx + 实际分辨率 不能大于最大虚拟分辨率
+}hi_fb_pan_display_param_t;
+
+//拓展显示参数
+typedef struct _hi_fb_refresh_param_s{
+	hi_fb_canvas_t m_stCanvas;				//画布参数
+	hi_fb_rect_t m_stRefreshRect;			//刷新区域
+}hi_fb_refresh_param_t;
 
 typedef struct _hi_fb_screen_info_s{
 	uint32_t m_u32DisResWidth;				//设备显示分辨率宽
@@ -165,6 +193,33 @@ int32_t HI_FB_GetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t *pstColo
 * 返回值：	0-成功，其他值-失败
 ********************************************************************************************/
 int32_t HI_FB_SetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t stColorkeyParam);
+/********************************************************************************************
+* 函 数 名：	HI_FB_PanDisplay
+* 功    能：获取屏幕在显存缓存区显示的位置
+* 参数：
+		|--fb_handle	：存储图层资源的句柄
+		|--stPanDisplayParam: 平移显示的位置参数地址
+* 返回值：	0-成功，其他值-失败
+********************************************************************************************/
+int32_t HI_FB_GetPanDisplay(hi_fb_handle fb_handle, hi_fb_pan_display_param_t *pstPanDisplayParam);
+/********************************************************************************************
+* 函 数 名：	HI_FB_PanDisplay
+* 功    能：平移显示虚拟显存区的数据
+* 参数：
+		|--fb_handle	：存储图层资源的句柄
+		|--stColorkeyParam: colorkey参数
+* 返回值：	0-成功，其他值-失败
+********************************************************************************************/
+int32_t HI_FB_SetPanDisplay(hi_fb_handle fb_handle, hi_fb_pan_display_param_t stPanDisplayParam);
+/********************************************************************************************
+* 函 数 名：	HI_FB_RefreshRect
+* 功    能：刷新指定区域的内容
+* 参数：
+		|--fb_handle	：存储图层资源的句柄
+		|--stColorkeyParam: colorkey参数
+* 返回值：	0-成功，其他值-失败
+********************************************************************************************/
+int32_t HI_FB_RefreshRect(hi_fb_handle fb_handle, hi_fb_refresh_param_t stRefreshRectParam);
 
 #ifdef __cplusplus
 #if __cplusplus

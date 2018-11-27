@@ -53,6 +53,161 @@ static struct fb_bitfield s_r32 = {16,8,0};
 static struct fb_bitfield s_g32 = {8,8,0};
 static struct fb_bitfield s_b32 = {0,8,0};
 
+int32_t HI_FB_GetColorFormt(HIFB_COLOR_FMT_E *penColorFmt, char *pstrColorFmt)
+{
+	if (!penColorFmt || !pstrColorFmt)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:Param was null", __FUNCTION__, __LINE__);
+	}
+	if (!strcmp(pstrColorFmt, "rgb565"))
+	{
+		*penColorFmt = HIFB_FMT_RGB565;
+	}
+	else if (!strcmp(pstrColorFmt, "rgb888"))
+	{
+		*penColorFmt = HIFB_FMT_RGB888;
+	}     
+	else if (!strcmp(pstrColorFmt, "krgb444"))
+	{
+		*penColorFmt = HIFB_FMT_KRGB444;
+	}  
+	else if (!strcmp(pstrColorFmt, "krgb555"))
+	{
+		*penColorFmt = HIFB_FMT_KRGB555;
+	} 
+	else if (!strcmp(pstrColorFmt, "krgb888"))
+	{
+		*penColorFmt = HIFB_FMT_KRGB888;
+	} 
+	else if (!strcmp(pstrColorFmt, "argb4444"))
+	{
+		*penColorFmt = HIFB_FMT_ARGB4444;
+	} 
+	else if (!strcmp(pstrColorFmt, "argb1555"))
+	{
+		*penColorFmt = HIFB_FMT_ARGB1555;
+	}      
+	else if (!strcmp(pstrColorFmt, "argb8888"))
+	{
+		*penColorFmt = HIFB_FMT_ARGB8888;
+	} 
+	else if (!strcmp(pstrColorFmt, "argb8565"))
+	{
+		*penColorFmt = HIFB_FMT_ARGB8565;
+	} 
+	else if (!strcmp(pstrColorFmt, "rgba4444"))
+	{
+		*penColorFmt = HIFB_FMT_RGBA4444;
+	} 
+	else if (!strcmp(pstrColorFmt, "rgba5551"))
+	{
+		*penColorFmt = HIFB_FMT_RGBA5551;
+	}
+	else if (!strcmp(pstrColorFmt, "rgba5658"))
+	{
+		*penColorFmt = HIFB_FMT_RGBA5658;
+	}
+	else if (!strcmp(pstrColorFmt, "rgba8888"))
+	{
+		*penColorFmt = HIFB_FMT_RGBA8888;
+	}
+	else if (!strcmp(pstrColorFmt, "bgr565"))
+	{
+		*penColorFmt = HIFB_FMT_BGR565;
+	}
+	else if (!strcmp(pstrColorFmt, "bgr888"))
+	{
+		*penColorFmt = HIFB_FMT_BGR888;
+	}  
+	else if (!strcmp(pstrColorFmt, "abgr4444"))
+	{
+		*penColorFmt = HIFB_FMT_ABGR4444;
+	}   
+	else if (!strcmp(pstrColorFmt, "abgr1555"))
+	{
+		*penColorFmt = HIFB_FMT_ABGR1555;
+	}  
+	else if (!strcmp(pstrColorFmt, "abgr8888"))
+	{
+		*penColorFmt = HIFB_FMT_ABGR8888;
+	}    
+	else if (!strcmp(pstrColorFmt, "abgr8565"))
+	{
+		*penColorFmt = HIFB_FMT_ABGR8565;
+	}  
+	else if (!strcmp(pstrColorFmt, "kbgr444"))
+	{
+		*penColorFmt = HIFB_FMT_KBGR444;
+	}  
+	else if (!strcmp(pstrColorFmt, "kbgr555"))
+	{
+		*penColorFmt = HIFB_FMT_KBGR555;
+	}  
+	else if (!strcmp(pstrColorFmt, "kbgr888"))
+	{
+		*penColorFmt = HIFB_FMT_KBGR888;
+	} 
+	else if (!strcmp(pstrColorFmt, "1bpp"))
+	{
+		*penColorFmt = HIFB_FMT_1BPP;
+	} 
+	else if (!strcmp(pstrColorFmt, "2bpp"))
+	{
+		*penColorFmt = HIFB_FMT_2BPP;
+	} 
+	else if (!strcmp(pstrColorFmt, "4bpp"))
+	{
+		*penColorFmt = HIFB_FMT_4BPP;
+	} 
+	else if (!strcmp(pstrColorFmt, "8bpp"))
+	{
+		*penColorFmt = HIFB_FMT_8BPP;
+	}  
+	else if (!strcmp(pstrColorFmt, "aclu44"))
+	{
+		*penColorFmt = HIFB_FMT_ACLUT44;
+	}
+	else if (!strcmp(pstrColorFmt, "aclu88"))
+	{
+		*penColorFmt = HIFB_FMT_ACLUT88;
+	}
+	else if (!strcmp(pstrColorFmt, "puyvy"))
+	{
+		*penColorFmt = HIFB_FMT_PUYVY;
+	}
+	else if (!strcmp(pstrColorFmt, "pyuyv"))
+	{
+		*penColorFmt = HIFB_FMT_PYUYV;
+	}
+	else if (!strcmp(pstrColorFmt, "pyvyu"))
+	{
+		*penColorFmt = HIFB_FMT_PYVYU;
+	}
+	else if (!strcmp(pstrColorFmt, "yuv888"))
+	{
+		*penColorFmt = HIFB_FMT_YUV888;
+	}
+	else if (!strcmp(pstrColorFmt, "ayuv8888"))
+	{
+		*penColorFmt = HIFB_FMT_AYUV8888;
+	}
+	else if (!strcmp(pstrColorFmt, "yuva8888"))
+	{
+		*penColorFmt = HIFB_FMT_YUVA8888;
+	}
+	else if (!strcmp(pstrColorFmt, "butt"))
+	{
+		*penColorFmt = HIFB_FMT_BUTT;
+	}
+	else
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:pstrColorFmt unknown!", __FUNCTION__, __LINE__, pstrColorFmt);
+		return -1;
+	}
+		
+	return 0;
+}
+
 int32_t HI_FB_GetDevName(char *pstrNameBuf, int32_t i32BufSize, int32_t i32GraphicsLayerID)
 {
 	if (!pstrNameBuf || !i32BufSize || i32GraphicsLayerID < 0){
@@ -484,6 +639,74 @@ int32_t HI_FB_SetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t stColork
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s set colorkey failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
 		return -2;
+	}
+	return 0;
+}
+
+int32_t HI_FB_GetPanDisplay(hi_fb_handle fb_handle, hi_fb_pan_display_param_t *pstPanDisplayParam)
+{
+	hi_fb_info_t *pstHiFbInfo = NULL;
+	struct fb_var_screeninfo stVarScreenInfo;
+	if (!pstPanDisplayParam)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s param was null!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -1;
+	}
+	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
+	if (ioctl(pstHiFbInfo->m_i32Fd, FBIOGET_VSCREENINFO, &stVarScreenInfo) < 0){
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s get screen info failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -2;
+	}
+	pstPanDisplayParam->m_u32PosX = stVarScreenInfo.xoffset;
+	pstPanDisplayParam->m_u32PosY = stVarScreenInfo.yoffset;
+	return 0;
+}
+
+int32_t HI_FB_SetPanDisplay(hi_fb_handle fb_handle, hi_fb_pan_display_param_t stPanDisplayParam)
+{
+	hi_fb_info_t *pstHiFbInfo = NULL;
+	struct fb_var_screeninfo stVarScreenInfo;
+
+	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
+	if (ioctl(pstHiFbInfo->m_i32Fd, FBIOGET_VSCREENINFO, &stVarScreenInfo) < 0){
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s get screen info failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -2;
+	}
+	stVarScreenInfo.xoffset = stPanDisplayParam.m_u32PosX;
+	stVarScreenInfo.yoffset = stPanDisplayParam.m_u32PosY;
+	if (ioctl(pstHiFbInfo->m_i32Fd, FBIOPUT_VSCREENINFO, &stVarScreenInfo) < 0){
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s get screen info failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -2;
+	}
+
+	return 0;
+}
+
+int32_t HI_FB_RefreshRect(hi_fb_handle fb_handle, hi_fb_refresh_param_t stRefreshRectParam)
+{
+	HIFB_BUFFER_S stCanvasBuf;
+	hi_fb_info_t *pstHiFbInfo = NULL;
+	HIFB_COLOR_FMT_E enColorFmt;
+
+	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
+	stCanvasBuf.stCanvas.u32PhyAddr = stRefreshRectParam.m_stCanvas.m_u32PhyAddr;
+	stCanvasBuf.stCanvas.u32Width = stRefreshRectParam.m_stCanvas.m_u32Width;
+	stCanvasBuf.stCanvas.u32Height = stRefreshRectParam.m_stCanvas.m_u32Height;
+	stCanvasBuf.stCanvas.u32Pitch = stRefreshRectParam.m_stCanvas.m_u32Pitch;
+	if(HI_FB_GetColorFormt(&enColorFmt, stRefreshRectParam.m_stCanvas.m_strColorFmt) < 0)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s refreash failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -2;
+	}
+	stCanvasBuf.UpdateRect.x = stRefreshRectParam.m_stRefreshRect.m_s32XPos;
+	stCanvasBuf.UpdateRect.y = stRefreshRectParam.m_stRefreshRect.m_s32YPos;
+	stCanvasBuf.UpdateRect.w = stRefreshRectParam.m_stRefreshRect.m_u32Width;
+	stCanvasBuf.UpdateRect.h = stRefreshRectParam.m_stRefreshRect.m_u32Height;
+	s32Ret = ioctl(pstHiFbInfo->m_i32Fd, FBIO_REFRESH, &stCanvasBuf);
+	if(s32Ret < 0)
+	{
+		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s refreash failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
+		return -3;
 	}
 	return 0;
 }
