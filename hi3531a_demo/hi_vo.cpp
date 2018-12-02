@@ -10,55 +10,55 @@ int32_t HI_VO_GetIntSync(VO_INTF_SYNC_E *enIntfSync, uint32_t u32W,uint32_t u32H
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:param is null!", __FUNCTION__, __LINE__);
 	}
-	if (720 == i32W && 576 == i32H && i32Frm == 25)
+	if (720 == u32W && 576 == u32H && u32Frm == 25)
 		*enIntfSync = VO_OUTPUT_PAL;
-	else if (720 == i32W && 480 == i32H && i32Frm == 30)
+	else if (720 == u32W && 480 == u32H && u32Frm == 30)
 		*enIntfSync = VO_OUTPUT_NTSC;
-	else if (720 == i32W && 576 == i32H && i32Frm == 50)
+	else if (720 == u32W && 576 == u32H && u32Frm == 50)
 		*enIntfSync = VO_OUTPUT_576P50;
-	else if (720 == i32W && 480 == i32H && i32Frm == 60)
+	else if (720 == u32W && 480 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_480P60;
-	else if (800 == i32W && 600 == i32H && i32Frm == 60)
+	else if (800 == u32W && 600 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_800x600_60;
-	else if (1280 == i32W && 720 == i32H && i32Frm == 50)
+	else if (1280 == u32W && 720 == u32H && u32Frm == 50)
 		*enIntfSync = VO_OUTPUT_720P50;
-	else if (1280 == i32W && 720 == i32H && i32Frm == 60)
+	else if (1280 == u32W && 720 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_720P60;
-	else if (1920 == i32W && 1080 == i32H && i32Frm == 50)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 50)
 		*enIntfSync = VO_OUTPUT_1080I50;
-	else if (1920 == i32W && 1080 == i32H && i32Frm == 60)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1080I60;
-	else if (1920 == i32W && 1080 == i32H && i32Frm == 24)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 24)
 		*enIntfSync = VO_OUTPUT_1080P24;
-	else if (1920 == i32W && 1080 == i32H && i32Frm == 25)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 25)
 		*enIntfSync = VO_OUTPUT_1080P25;
-	else if (1920 == i32W && 1080 == i32H && i32Frm == 30)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 30)
 		*enIntfSync = VO_OUTPUT_1080P30;
-	else if (1920 == i32W && 1080 == i32H && i32Frm == 50)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 50)
 		*enIntfSync = VO_OUTPUT_1080P50;
-	else if (1920 == i32W && 1080 == i32H && i32Frm == 60)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1080P60;
-	else if (1024 == i32W && 768 == i32H && i32Frm == 60)
+	else if (1024 == u32W && 768 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1024x768_60;
-	else if (1280 == i32W && 1024 == i32H && i32Frm == 60)
+	else if (1280 == u32W && 1024 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1280x1024_60;
-	else if (1366 == i32W && 768 == i32H && i32Frm == 60)
+	else if (1366 == u32W && 768 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1366x768_60;
-	else if (1440 == i32W && 900 == i32H && i32Frm == 60)
+	else if (1440 == u32W && 900 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1440x900_60;
-	else if (1280 == i32W && 800 == i32H && i32Frm == 60)
+	else if (1280 == u32W && 800 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1280x800_60;
-	else if (1600 == i32W && 1200 == i32H && i32Frm == 60)
+	else if (1600 == u32W && 1200 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1600x1200_60;
-	else if (1680 == i32W && 1050 == i32H && i32Frm == 60)
+	else if (1680 == u32W && 1050 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1600x1200_60;
-	else if (1920 == i32W && 1200 == i32H && i32Frm == 60)
+	else if (1920 == u32W && 1200 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1920x1200_60;
-	else if (3840 == i32W && 2160 == i32H && i32Frm == 30)
+	else if (3840 == u32W && 2160 == u32H && u32Frm == 30)
 		*enIntfSync = VO_OUTPUT_3840x2160_30;
-	else if (3840 == i32W && 2160 == i32H && i32Frm == 60)
+	else if (3840 == u32W && 2160 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_3840x2160_60;
-	else if (720 == i32W && 576 == i32H && i32Frm == 25)
+	else if (720 == u32W && 576 == u32H && u32Frm == 25)
 		*enIntfSync = VO_OUTPUT_USER;
 	else
 	{
@@ -337,19 +337,19 @@ int32_t HI_VO_StartDev(hi_vo_dev_param_t *pstVoDevParam)
 	stPubAttr.u32BgColor = pstVoDevParam->m_u32BgColor;
 	if (strstr(pstVoDevParam->m_strIntfTypeName, "vga"))
 	{
-		stPubAttr.enIntfSync = VO_INTF_VGA;
+		stPubAttr.enIntfType = (VO_INTF_SYNC_E)VO_INTF_VGA;
 	}
 	if (strstr(pstVoDevParam->m_strIntfTypeName, "hdmi"))
 	{
-		stPubAttr.enIntfSync |= VO_INTF_HDMI;
+		stPubAttr.enIntfType |= (VO_INTF_SYNC_E)VO_INTF_HDMI;
 	}
 	if (strstr(pstVoDevParam->m_strIntfTypeName, "bt1120"))
 	{
-		stPubAttr.enIntfSync |= VO_INTF_BT1120;
+		stPubAttr.enIntfType |= (VO_INTF_SYNC_E)VO_INTF_BT1120;
 	}
 	if (strstr(pstVoDevParam->m_strIntfTypeName, "cvbs"))
 	{
-		stPubAttr.enIntfSync |= VO_INTF_CVBS;
+		stPubAttr.enIntfType |= (VO_INTF_SYNC_E)VO_INTF_CVBS;
 	}
 	s32Ret = HI_MPI_VO_SetPubAttr(pstVoDevParam->m_u32VoDevID, &stPubAttr);
 	if (s32Ret != HI_SUCCESS)
@@ -434,7 +434,7 @@ int32_t HI_VOStopVoLayer(int32_t i32VoLayerID)
 {
 	HI_S32 s32Ret = HI_SUCCESS;
 
-	s32Ret = HI_MPI_VO_DisableVideoLayer(VoLayer);
+	s32Ret = HI_MPI_VO_DisableVideoLayer(i32VoLayerID);
 	if (s32Ret != HI_SUCCESS)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_VO_DisableVideoLayer volayer[%d] failed with %#x!", __FUNCTION__, __LINE__, i32VoLayerID, s32Ret);
@@ -466,13 +466,13 @@ int32_t HI_VO_StartHdmi(hi_hdmi_param_t *pstHdmiParam)
 		return -2;
 	}
 
-	s32Ret = HI_MPI_HDMI_Open(pstHdmiParam->m_i32HdmiID);
+	s32Ret = HI_MPI_HDMI_Open((HI_HDMI_ID_E)pstHdmiParam->m_i32HdmiID);
 	if (HI_SUCCESS != s32Ret)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_Open[%d] failed with:%#x!", __FUNCTION__, __LINE__, pstHdmiParam->m_i32HdmiID, s32Ret);
 		return -3;
 	}
-	s32Ret = HI_MPI_HDMI_GetAttr(pstHdmiParam->m_i32HdmiID, &stAttr);
+	s32Ret = HI_MPI_HDMI_GetAttr((HI_HDMI_ID_E)pstHdmiParam->m_i32HdmiID, &stAttr);
 	if (HI_SUCCESS != s32Ret)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_GetAttr[%d] failed with:%#x!", __FUNCTION__, __LINE__, pstHdmiParam->m_i32HdmiID, s32Ret);
@@ -487,29 +487,29 @@ int32_t HI_VO_StartHdmi(hi_hdmi_param_t *pstHdmiParam)
 	stAttr.enDeepColorMode = HI_HDMI_DEEP_COLOR_OFF;
 	stAttr.bxvYCCMode = HI_FALSE;
 
-	stAttr.bEnableAudio = pstHdmiParam->m_bEnableAudio;
+	stAttr.bEnableAudio = (HI_BOOL)pstHdmiParam->m_bEnableAudio;
 	stAttr.enSoundIntf = HI_HDMI_SND_INTERFACE_I2S;
-	stAttr.bIsMultiChannel = HI_FALSE;
+	stAttr.bIsMultiChannel = (HI_BOOL)HI_FALSE;
 
-	stAttr.enBitDepth = pstHdmiParam->m_i32AudioBitDepth;
+	stAttr.enBitDepth = (HI_HDMI_BIT_DEPTH_E)pstHdmiParam->m_i32AudioBitDepth;
 
-	stAttr.bEnableAviInfoFrame = HI_TRUE;
-	stAttr.bEnableAudInfoFrame = HI_TRUE;
-	stAttr.bEnableSpdInfoFrame = HI_FALSE;
-	stAttr.bEnableMpegInfoFrame = HI_FALSE;
+	stAttr.bEnableAviInfoFrame = (HI_BOOL)HI_TRUE;
+	stAttr.bEnableAudInfoFrame = (HI_BOOL)HI_TRUE;
+	stAttr.bEnableSpdInfoFrame = (HI_BOOL)HI_FALSE;
+	stAttr.bEnableMpegInfoFrame = (HI_BOOL)HI_FALSE;
 
-	stAttr.bDebugFlag = HI_FALSE;          
-	stAttr.bHDCPEnable = pstHdmiParam->m_bHDCPEnable;
+	stAttr.bDebugFlag = (HI_BOOL)HI_FALSE;          
+	stAttr.bHDCPEnable = (HI_BOOL)pstHdmiParam->m_bHDCPEnable;
 
-	stAttr.b3DEnable = HI_FALSE;
+	stAttr.b3DEnable = (HI_BOOL)HI_FALSE;
 
-	s32Ret = HI_MPI_HDMI_SetAttr(pstHdmiParam->m_i32HdmiID, &stAttr);
+	s32Ret = HI_MPI_HDMI_SetAttr((HI_HDMI_ID_E)pstHdmiParam->m_i32HdmiID, &stAttr);
 	if (HI_SUCCESS != s32Ret)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_SetAttr[%d] failed with:%#x!", __FUNCTION__, __LINE__, pstHdmiParam->m_i32HdmiID, s32Ret);
 		return -5;
 	}
-	s32Ret = HI_MPI_HDMI_Start(pstHdmiParam->m_i32HdmiID);
+	s32Ret = HI_MPI_HDMI_Start((HI_HDMI_ID_E)pstHdmiParam->m_i32HdmiID);
 	if (HI_SUCCESS != s32Ret)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_Start[%d] failed with:%#x!", __FUNCTION__, __LINE__, pstHdmiParam->m_i32HdmiID, s32Ret);
@@ -522,7 +522,7 @@ int32_t HI_VO_StopHdmi(int32_t i32HdmiID)
 {
 	HI_S32 s32Ret = HI_SUCCESS;
 
-	s32Ret = HI_MPI_HDMI_Stop(i32HdmiID);
+	s32Ret = HI_MPI_HDMI_Stop((HI_HDMI_ID_E)i32HdmiID);
 	if (HI_SUCCESS != s32Ret)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_HDMI_Stop[%d] failed with:%#x!", __FUNCTION__, __LINE__, i32HdmiID, s32Ret);

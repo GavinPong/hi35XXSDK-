@@ -1,7 +1,7 @@
 #ifndef __HI__SYS__
 #define __HI_SYS__
 
-#define 
+#include "cross_platform.h"
 
 #ifdef __cplusplus
 extern "C"{

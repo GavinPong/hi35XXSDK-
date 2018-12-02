@@ -15,7 +15,7 @@ extern "C"{
 #define GRAPHICS_LAYER_HC0 2
 #define GRAPHICS_LAYER_HC1 3
 
-typedef hi_fb_handle void*;
+typedef void* hi_fb_handle;
 
 typedef struct _hi_fb_point_s{
 	int32_t m_s32XPos;         /**<  horizontal position */
@@ -69,6 +69,9 @@ typedef struct _hi_fb_screen_info_s{
 	uint32_t m_u32MaxVirtualResWidth;		//最大虚拟分辨率宽
 	uint32_t m_u32MaxVirtualResHeight;		//最大虚拟分辨率高
 	uint32_t m_u32BitsPerPixel;				//位深 8bit - 16bit - 32bit
+	uint32_t m_u32ScreenStride;				//屏幕跨度
+	uint32_t m_u32PhyAddr;					//屏幕虚拟地址
+	void *m_pVirAddr;						//屏幕物理地址
 }hi_fb_screen_info_t;
 
 typedef struct __hi_fb_graphics_layer_param_s{
@@ -131,8 +134,8 @@ int32_t HI_FB_SetScreenOrigin(hi_fb_handle fb_handle, hi_fb_point_t stPoint);
 ********************************************************************************************/
 int32_t HI_FB_ShowScreen(hi_fb_handle fb_handle, uint8_t i8ShowFlag);
 /********************************************************************************************
-* 函 数 名：	HI_FB_ShowScreen
-* 功    能：显示/隐藏屏幕
+* 函 数 名：	HI_FB_GetScreeInfo
+* 功    能：获取屏幕信息
 * 参数：
 		|--fb_handle	：存储图层资源的句柄
 		|--pstScreenInfo：存储屏幕信息
@@ -140,7 +143,7 @@ int32_t HI_FB_ShowScreen(hi_fb_handle fb_handle, uint8_t i8ShowFlag);
 ********************************************************************************************/
 int32_t HI_FB_GetScreeInfo(hi_fb_handle fb_handle, hi_fb_screen_info_t *pstScreenInfo);
 /********************************************************************************************
-* 函 数 名：	HI_FB_ClearScreen
+* 函 数 名：	HI_FB_SetScreeInfo
 * 功    能：暂时无效
 * 参数：
 		|--fb_handle	：存储图层资源的句柄

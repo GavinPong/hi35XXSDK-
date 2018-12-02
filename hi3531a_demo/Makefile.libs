@@ -1,0 +1,27 @@
+####################################
+#   所有与第三方库相关的参数全放在这里
+####################################
+
+
+##########include dir#############
+LIBS_INC :=
+#LIBS_INC += -I/home/disk2/sdk/Hi3531A_SDK_V1.0.3.0/mpp/include
+#LIBS_INC += -I/home/disk2/sdk/Hi3531A_SDK_V1.0.3.0/mpp/include/mkp
+#LIBS_INC += -I/home/disk2/zp/work_space/thirdlib/mdd/inc
+
+LIBS_INC += -I/home/share_disk/sdk/Hi3531A_SDK_V1.0.3.0/mpp/include
+LIBS_INC += -I/home/share_disk/sdk/Hi3531A_SDK_V1.0.3.0/mpp/include/mkp
+LIBS_INC += -I/home/share_disk/workspace/thirdlib/mdd/inc
+
+
+##########lib dir#############
+LIBS_LIB :=
+#LIBS_LIB += -L/home/disk2/sdk/Hi3531A_SDK_V1.0.3.0/mpp/lib
+#LIBS_LIB += -L/home/disk2/zp/work_space/thirdlib/mdd
+
+LIBS_LIB += -L/home/share_disk/sdk/Hi3531A_SDK_V1.0.3.0/mpp/lib
+LIBS_LIB += -L/home/share_disk/workspace/thirdlib/mdd
+
+##########load option#############
+LDFLAGS :=
+LDFLAGS += -lpthread -lm -lstdc++ -lmdd -lmpi -ljpeg -lhdmi -ltde -lupvqe -lVoiceEngine -ldnvqe -ldl

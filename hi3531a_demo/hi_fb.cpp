@@ -7,6 +7,7 @@
 #include "log.h"
 #include "list.h"
 #include <pthread.h>
+#include <sys/mman.h>
 
 #define HI_FB_HandleToFbInfo(pstFbInfo, handle)  do{\
 	if(!handle)	{\
@@ -38,6 +39,9 @@ typedef struct _hi_fb_ctx_s{
 	hi_fb_inited_e	m_enInited;				//是否初始化标记
 	struct list_head m_strFbInfoListHead;	//管理fb信息链表头
 	pthread_mutex_t m_FbInfoListHeadMutex;	//
+	uint32_t m_u32ScreeStride;				//fb屏幕跨度（一行的宽度）
+	uint32_t m_u32PhAddr;					//fb物理地址
+	void * m_pVirAddr;						//fb虚拟地址
 }hi_fb_ctx_t;
 
 static hi_fb_ctx_t s_stHifbCtx = {};
@@ -237,7 +241,8 @@ int32_t HI_FB_GetDevName(char *pstrNameBuf, int32_t i32BufSize, int32_t i32Graph
 //检查设备是否已经开启
 static int32_t HI_FB_CheckDevStatus(const char *strDevName)
 {
-	hi_fb_info_t *pos = NULL, *n = NULL, *head = NULL;
+	hi_fb_info_t *pos = NULL, *n = NULL;
+	struct list_head *head = NULL;
 	int32_t i32ExistFlag = 0;
 
 	if (!strDevName){
@@ -248,7 +253,7 @@ static int32_t HI_FB_CheckDevStatus(const char *strDevName)
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:hi_fb uninited", __FUNCTION__, __LINE__);
 		return 0;
 	}
-	pthread_mutex_lock(&s_stHifbCtx.m_FbInfoListHeadMutex)
+	pthread_mutex_lock(&s_stHifbCtx.m_FbInfoListHeadMutex);
 	head = &s_stHifbCtx.m_strFbInfoListHead;
 	list_for_each_entry_safe(hi_fb_info_t, pos, n, head, m_stListNode){
 		if (!strcmp(pos->m_strDevName, strDevName)){
@@ -256,7 +261,7 @@ static int32_t HI_FB_CheckDevStatus(const char *strDevName)
 			break;
 		}
 	}
-	pthread_mutex_unlock(&s_stHifbCtx.m_FbInfoListHeadMutex)
+	pthread_mutex_unlock(&s_stHifbCtx.m_FbInfoListHeadMutex);
 	if(1 == i32ExistFlag)
 		return 1;
 	return 0;
@@ -280,11 +285,12 @@ int32_t HI_FB_UnInit()
 	if (HI_FB_INITED != s_stHifbCtx.m_enInited){
 		return 0;
 	}
-	hi_fb_info_t *pos, *n, *head;
+	hi_fb_info_t *pos, *n;
+	struct list_head *head;
 
 	pthread_mutex_lock(&s_stHifbCtx.m_FbInfoListHeadMutex);
 	head = &s_stHifbCtx.m_strFbInfoListHead;
-	list_for_each_entry_safe(type, pos, n, head, m_stListNode){
+	list_for_each_entry_safe(hi_fb_info_t, pos, n, head, m_stListNode){
 		list_del(&pos->m_stListNode);
 		if (pos->m_i32Fd >= 0)
 		{
@@ -301,7 +307,6 @@ int32_t HI_FB_UnInit()
 //默认图形层启动后是隐藏的，需要手动显示s
 int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_param_t *pstGraphicsLayerParam)
 {
-	HI_S32 i,x,y,s32Ret;
 	struct fb_fix_screeninfo strFixScreenInfo;
 	struct fb_var_screeninfo strVarScreenInfoVar;
 	char strFbFileName[32] = "";
@@ -328,7 +333,7 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 		return -3;
 	}
 	//3.打开设备，获取句柄
-	i32Fd = fopen(strFbFileName, O_RDWR);
+	i32Fd = open(strFbFileName, O_RDWR);
 	if (i32Fd < 0){
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s open %s failed!", __FUNCTION__, __LINE__, strFbFileName);
 		return -4;
@@ -384,13 +389,16 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 		close(i32Fd);
         return -7;
     }
-    pShowScreen = mmap(HI_NULL, fix.smem_len, PROT_READ|PROT_WRITE, MAP_SHARED, i32Fd, 0);
+    pShowScreen = mmap(HI_NULL, strFixScreenInfo.smem_len, PROT_READ|PROT_WRITE, MAP_SHARED, i32Fd, 0);
     if(MAP_FAILED == pShowScreen)
     {
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s mmap framebuffer failed!", __FUNCTION__, __LINE__, strFbFileName);
 		close(i32Fd);
         return -8;
     }
+	s_stHifbCtx.m_pVirAddr = pShowScreen;
+	s_stHifbCtx.m_u32PhAddr = (uint32_t)strFixScreenInfo.smem_start;
+	s_stHifbCtx.m_u32ScreeStride = strFixScreenInfo.line_length;
     memset(pShowScreen, 0x00, strFixScreenInfo.smem_len);
 	if (ioctl(i32Fd, FBIOPUT_SCREEN_ORIGIN_HIFB, &stPoint) < 0)
 	{
@@ -403,9 +411,8 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
     bShow = HI_TRUE;
     if (ioctl(i32Fd, FBIOPUT_SHOW_HIFB, &bShow) < 0)
     {
-        SAMPLE_PRT("FBIOPUT_SHOW_HIFB failed!\n");
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s show screen failed!", __FUNCTION__, __LINE__, strFbFileName);
-        munmap(pShowScreen, fix.smem_len);
+        munmap(pShowScreen, strFixScreenInfo.smem_len);
 		close(i32Fd);
 		return -10;
     }
@@ -431,7 +438,8 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 int32_t HI_FB_StopGraphicsLayer(hi_fb_handle *fb_handle)
 {
 	HI_BOOL bShow;
-	hi_fb_info_t *pstHiFbInfo = NULL, *pos, *n, *head;
+	hi_fb_info_t *pstHiFbInfo = NULL, *pos, *n;
+	struct list_head *head;
 
 	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
 	bShow = HI_FALSE;
@@ -466,7 +474,6 @@ int32_t HI_FB_SetScreenOrigin(hi_fb_handle fb_handle, hi_fb_point_t stPoint)
 	if (ioctl(pstHiFbInfo->m_i32Fd, FBIOPUT_SCREEN_ORIGIN_HIFB, &hiPosition) < 0)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s set screen original show position failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
-		close(i32Fd);
 		return -2;
 	}
 
@@ -511,7 +518,9 @@ int32_t HI_FB_GetScreeInfo(hi_fb_handle fb_handle, hi_fb_screen_info_t *pstScree
 	pstScreenInfo->m_u32DisResHeight = stVarScreenInfo.yres;
 	pstScreenInfo->m_u32MaxVirtualResWidth = stVarScreenInfo.xres_virtual;
 	pstScreenInfo->m_u32MaxVirtualResHeight = stVarScreenInfo.yres_virtual;
-
+	pstScreenInfo->m_u32PhyAddr = s_stHifbCtx.m_u32PhAddr;
+	pstScreenInfo->m_pVirAddr = s_stHifbCtx.m_pVirAddr;
+	pstScreenInfo->m_u32ScreenStride = s_stHifbCtx.m_u32ScreeStride;
 	return 0;
 }
 
@@ -533,7 +542,7 @@ int32_t HI_FB_ClearScreen(hi_fb_handle fb_handle)
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s get fix screen info failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
 		return -2;
 	}
-	pShowScreen = mmap(HI_NULL, fix.smem_len, PROT_READ|PROT_WRITE, MAP_SHARED, pstHiFbInfo->m_i32Fd, 0);
+	pShowScreen = mmap(HI_NULL, stFixScreenInfo.smem_len, PROT_READ|PROT_WRITE, MAP_SHARED, pstHiFbInfo->m_i32Fd, 0);
 	if(MAP_FAILED == pShowScreen)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s mmap framebuffer failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
@@ -588,7 +597,7 @@ int32_t HI_FB_SetAlpha(hi_fb_handle fb_handle,hi_fb_alpha_param_t stAplphaParam)
 
 	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
 
-	if HI_FB_PIXEL_FORMAT_ARGB1555 == (pstHiFbInfo->m_enPixFormat)
+	if  (HI_FB_PIXEL_FORMAT_ARGB1555 == pstHiFbInfo->m_enPixFormat)
 	{
 	}
 	stAlpha.bAlphaEnable = (1 ==stAplphaParam.m_bAlphaOverlay?HI_TRUE : HI_FALSE);
@@ -608,6 +617,7 @@ int32_t HI_FB_GetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t *pstColo
 {
 	hi_fb_info_t *pstHiFbInfo = NULL;
 	HIFB_COLORKEY_S stColorKey;
+	int s32Ret = -1;
 
 	if (!pstColorkeyParam)
 	{
@@ -615,7 +625,7 @@ int32_t HI_FB_GetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t *pstColo
 		return -1;
 	}
 	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
-	s32Ret = ioctl(pstInfo->fd, FBIOGET_COLORKEY_HIFB, &stColorKey);
+	s32Ret = ioctl(pstHiFbInfo->m_i32Fd, FBIOGET_COLORKEY_HIFB, &stColorKey);
 	if (s32Ret < 0)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s set colorkey failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
@@ -630,11 +640,12 @@ int32_t HI_FB_SetColorkey(hi_fb_handle fb_handle,hi_fb_colorkey_param_t stColork
 {
 	hi_fb_info_t *pstHiFbInfo = NULL;
 	HIFB_COLORKEY_S stColorKey;
+	int s32Ret = -1;
 
 	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
 	stColorKey.bKeyEnable = (1 == stColorkeyParam.m_bEnable?HI_TRUE : HI_FALSE);
 	stColorKey.u32Key = stColorkeyParam.m_u32ColorKeyValue;
-	s32Ret = ioctl(pstInfo->fd, FBIOPUT_COLORKEY_HIFB, &stColorKey);
+	s32Ret = ioctl(pstHiFbInfo->m_i32Fd, FBIOPUT_COLORKEY_HIFB, &stColorKey);
 	if (s32Ret < 0)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s set colorkey failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
@@ -687,6 +698,7 @@ int32_t HI_FB_RefreshRect(hi_fb_handle fb_handle, hi_fb_refresh_param_t stRefres
 	HIFB_BUFFER_S stCanvasBuf;
 	hi_fb_info_t *pstHiFbInfo = NULL;
 	HIFB_COLOR_FMT_E enColorFmt;
+	int s32Ret = -1;
 
 	HI_FB_HandleToFbInfo(pstHiFbInfo, fb_handle);
 	stCanvasBuf.stCanvas.u32PhyAddr = stRefreshRectParam.m_stCanvas.m_u32PhyAddr;

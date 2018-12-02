@@ -1,0 +1,72 @@
+####################################
+#   所有与源码相关的参数全放在这里
+####################################
+
+SRCS_INC :=
+SRCS_INC += -I.
+
+SRCS_C :=
+SRCS_C += $(wildcard ./*.c)
+
+SRCS_CPP :=
+SRCS_CPP += $(wildcard ./*.cpp)
+
+############public source code############
+#UTIL_TOOLS_DIR := /home/disk2/zp/work_space/code/util_tools/code
+UTIL_TOOLS_DIR := /home/share_disk/workspace/code/util_tools/code
+
+SRCS_INC += -I$(UTIL_TOOLS_DIR)/base64
+SRCS_INC += -I$(UTIL_TOOLS_DIR)/cJSON
+SRCS_INC += -I$(UTIL_TOOLS_DIR)/cross_platform
+SRCS_INC += -I$(UTIL_TOOLS_DIR)/error
+SRCS_INC += -I$(UTIL_TOOLS_DIR)/filefunc
+SRCS_INC += -I$(UTIL_TOOLS_DIR)/inirw
+SRCS_INC += -I$(UTIL_TOOLS_DIR)/list
+SRCS_INC += -I$(UTIL_TOOLS_DIR)/log
+SRCS_INC += -I$(UTIL_TOOLS_DIR)/strfunc
+
+SRCS_C += $(wildcard $(UTIL_TOOLS_DIR)/base64/*.c)
+SRCS_C += $(wildcard $(UTIL_TOOLS_DIR)/cJSON/*.c)
+SRCS_C += $(wildcard $(UTIL_TOOLS_DIR)/cross_platform/*.c)
+SRCS_C += $(wildcard $(UTIL_TOOLS_DIR)/error/*.c)
+SRCS_C += $(wildcard $(UTIL_TOOLS_DIR)/filefunc/*.c)
+SRCS_C += $(wildcard $(UTIL_TOOLS_DIR)/inirw/*.c)
+SRCS_C += $(wildcard $(UTIL_TOOLS_DIR)/list/*.c)
+SRCS_C += $(wildcard $(UTIL_TOOLS_DIR)/log/*.c)
+SRCS_C += $(wildcard $(UTIL_TOOLS_DIR)/strfunc/*.c)
+
+SRCS_CPP += $(wildcard $(UTIL_TOOLS_DIR)/base64/*.cpp)
+SRCS_CPP += $(wildcard $(UTIL_TOOLS_DIR)/cJSON/*.cpp)
+SRCS_CPP += $(wildcard $(UTIL_TOOLS_DIR)/cross_platform/*.cpp)
+SRCS_CPP += $(wildcard $(UTIL_TOOLS_DIR)/error/*.cpp)
+SRCS_CPP += $(wildcard $(UTIL_TOOLS_DIR)/filefunc/*.cpp)
+SRCS_CPP += $(wildcard $(UTIL_TOOLS_DIR)/inirw/*.cpp)
+SRCS_CPP += $(wildcard $(UTIL_TOOLS_DIR)/list/*.cpp)
+SRCS_CPP += $(wildcard $(UTIL_TOOLS_DIR)/log/*.cpp)
+SRCS_CPP += $(wildcard $(UTIL_TOOLS_DIR)/strfunc/*.cpp)
+
+OBJS_C	:= 
+OBJS_C	+= $(SRCS_C:.c=.o)
+
+OBJS_CPP	:= 
+OBJS_CPP	+= $(SRCS_CPP:.cpp=.o)
+
+DEF_C	:=
+DEF_C	+= $(SRCS_C:.c=.d)
+
+DEF_CPP	:=
+DEF_CPP	+= $(SRCS_CPP:.cpp=.d)
+
+SRCS_MACRO :=
+SRCS_MACRO += -DPLATFORM=1
+
+export SRCS_INC			#source code directory
+export SRCS_C			# c source code pathname 
+export SRCS_CPP			# cpp source code pathname
+export OBJS_C			# The c suffix corresponding to the path name of the .o
+export OBJS_CPP			# The cpp suffix corresponding to the path name of the .o
+export DEF_C			# The c suffix corresponding to the path name of the .d
+export DEF_CPP			# The cpp suffix corresponding to the path name of the .d
+export SRCS_MACRO		# Source related macros
+
+

@@ -1,5 +1,5 @@
 #include <string.h>
-#include "sample_comm.h"
+#include "hi_includes.h"
 #include "hi_sys.h"
 
 //清理系统
@@ -10,11 +10,11 @@ static void HI_SYS_CleanSystem()
 	HI_MPI_SYS_Exit();
 	for (i = 0;i < VB_MAX_USER;i++)
 	{
-		HI_MPI_VB_ExitModCommPool(i);
+		HI_MPI_VB_ExitModCommPool((VB_UID_E)i);
 	}
 	for (i = 0;i < VB_MAX_POOLS;i++)
 	{
-		HI_MPI_VB_DestroyPool(i);
+		HI_MPI_VB_DestroyPool((VB_POOL)i);
 	}
 	HI_MPI_VB_Exit();
 }
@@ -46,7 +46,7 @@ int32_t HI_SYS_Init(hi_sys_param_t *pstSysParam)
 			* CEILING_2_POWER(pstSysParam->m_stVideoBlockParamPtr[i].m_i32Height, pstSysParam->m_i32StrideAlignWidth) *2;
 		stVbConf.astCommPool[i].u32BlkSize = u32BlkSize;
 		stVbConf.astCommPool[i].u32BlkCnt = pstSysParam->m_stVideoBlockParamPtr[i].m_i32BlockCnt;
-		if (strlen(pstSysParam->m_stVideoBlockParamPtr[i].m_strMmzName)
+		if (strlen(pstSysParam->m_stVideoBlockParamPtr[i].m_strMmzName))
 		{
 			snprintf(stVbConf.astCommPool[i].acMmzName, sizeof(stVbConf.astCommPool[i].acMmzName), "%s", pstSysParam->m_stVideoBlockParamPtr[i].m_strMmzName);
 		}

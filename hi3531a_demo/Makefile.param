@@ -1,0 +1,26 @@
+####################################
+#   所有与平台相关的编译参数全放在这里
+####################################
+#=======================================
+#plateform
+export CHIP_TYPE := HI_3531A
+#=======================================
+#tools chain
+ifeq ($(CHIP_TYPE), HI_3531A)
+TOOL_CHAIN_DIR :=  /home/share_disk/tool_chain/3531A_030/arm-hisiv300-linux/target/bin/
+export CROSS_COMPILE := $(TOOL_CHAIN_DIR)arm-hisiv300-linux-
+else
+
+endif
+#=======================================
+export  CC := $(CROSS_COMPILE)gcc
+export  CPP := $(CROSS_COMPILE)g++
+export  AR := $(CROSS_COMPILE)ar
+export  LD := $(CROSS_COMPILE)ld
+export  STRIP := $(CROSS_COMPILE)strip
+export STRIPFLAGS:= -g --strip-unneeded
+export MAKEDEPEND =$(CC) -MM -MT
+
+export CFLAGS :=   -Wall
+export CPPFLAGS :=  -Wall
+export MACRO :=
