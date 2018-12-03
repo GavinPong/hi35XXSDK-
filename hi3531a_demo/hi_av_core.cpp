@@ -37,15 +37,42 @@ static uint32_t s_u32Stride = 0;	//根据上实际显示设备设置
 static uint32_t s_u32PhyAddr = 0;	//屏幕虚拟地址
 static void *s_pVirAddr;			//屏幕物理地址
 
-int32_t DrawLine()
+int32_t DrawLine(point_t stOriginal, point_t stDestination)
 {
-	int32_t i = 1080, y = 800;
-
-	for (;i < 1900;i++)
+	int32_t i, j;
+	double k = (double)(stDestination.m_i32YPos - stOriginal.m_i32YPos) / (stDestination.m_i32XPos - stOriginal.m_i32XPos);
+	int32_t i32OrigiX = 0, i32EndX = 0;
+	int32_t i32OrigiY = 0, i32EndY = 0;
+#if 0
+	printf("=====================\n");
+	printf("k:%lf [%d,%d] [%d,%d]\n",k, stOriginal.m_i32XPos,stOriginal.m_i32YPos, stDestination.m_i32XPos,stDestination.m_i32YPos);
+	printf("=====================\n");
+#endif
+	if (stOriginal.m_i32XPos <= stDestination.m_i32XPos)
 	{
-		*((HI_U16 *)s_pVirAddr + y * (s_u32Stride / 2)+ i) = RED_16;
+		i32OrigiX = stOriginal.m_i32XPos;
+		i32EndX = stDestination.m_i32XPos;
+		i32OrigiY = stOriginal.m_i32YPos;
+		i32EndY = stDestination.m_i32YPos;
 	}
-
+	else
+	{
+		i32OrigiX = stDestination.m_i32XPos;
+		i32EndX = stOriginal.m_i32XPos;
+		i32OrigiY = stDestination.m_i32YPos;
+		i32EndY = stOriginal.m_i32YPos;
+	}
+	for (i = i32OrigiX;i < i32EndX;i++)
+	{
+		j = k * (i - i32OrigiX) + i32OrigiY;
+#if 0	
+		printf("[%d,%d]\t",i, j);
+#endif	
+		*((HI_U16 *)s_pVirAddr + j * (s_u32Stride / 2)+ i) = GREEN_16;
+	}
+#if 0
+	printf("\n");
+#endif
 	return 0;
 }
 
@@ -94,7 +121,8 @@ int32_t fb_test_start(hi_fb_handle *fb_handle)
 	hi_fb_handle handle;
 	hi_fb_point_t stPoint = {0,0};
 	hi_fb_screen_info_t stScreenInfo;
-	point_t original = {300, 300};
+	point_t stRectangleOriginal = {300, 300};
+	point_t stLineOriginal = {660,588}, stLineDestination = {130, 100};
 
 	if (!fb_handle)
 	{
@@ -114,14 +142,36 @@ int32_t fb_test_start(hi_fb_handle *fb_handle)
 	s_pVirAddr = stScreenInfo.m_pVirAddr;
 	HI_FB_ShowScreen(handle, 0);
 	HI_FB_SetScreenOrigin(handle, stPoint);
-	DrawLine();
+	DrawLine(stLineOriginal, stLineDestination);
+#if 0
+	printf("=====================\n");
+	printf("[%d,%d] [%d,%d]\n",stLineOriginal.m_i32XPos,stLineOriginal.m_i32YPos, stLineDestination.m_i32XPos,stLineDestination.m_i32YPos);
+	printf("=====================\n");
+#endif
+	stLineOriginal.m_i32XPos = 888;stLineOriginal.m_i32YPos = 58;
+	stLineDestination.m_i32XPos = 88; stLineDestination.m_i32YPos = 688;
+#if	0
+	printf("=====================\n");
+	printf("[%d,%d] [%d,%d]\n",stLineOriginal.m_i32XPos,stLineOriginal.m_i32YPos, stLineDestination.m_i32XPos,stLineDestination.m_i32YPos);
+	printf("=====================\n");
+#endif
+	Msleep(1000 * 2);
+	DrawLine(stLineOriginal, stLineDestination);
+	Msleep(1000 * 2);
 	DrawCircle(960, 540, 10, (HI_U32 *)s_pVirAddr);
+	Msleep(1000 * 2);
 	DrawCircle(960, 540, 20, (HI_U32 *)s_pVirAddr);
+	Msleep(1000 * 2);
 	DrawCircle(960, 540, 40, (HI_U32 *)s_pVirAddr);
+	Msleep(1000 * 2);
 	DrawCircle(960, 540, 80, (HI_U32 *)s_pVirAddr);
+	Msleep(1000 * 2);
 	DrawCircle(960, 540, 160, (HI_U32 *)s_pVirAddr);
+	Msleep(1000 * 2);
 	DrawCircle(960, 540, 320, (HI_U32 *)s_pVirAddr);
-	DrawRectangular(original, 100, 100, (HI_U16 *)s_pVirAddr);
+	Msleep(1000 * 2);
+	DrawRectangular(stRectangleOriginal, 100, 100, (HI_U16 *)s_pVirAddr);
+	Msleep(1000 * 2);
 	*fb_handle = handle;
 
 	return 0;
@@ -162,8 +212,8 @@ int32_t main(int argc, char *argv[])
 	memset(stVoDevParam.m_strIntfTypeName, 0, sizeof(stVoDevParam.m_strIntfTypeName));
 	plat_sprintf(stVoDevParam.m_strIntfTypeName, sizeof(stVoDevParam.m_strIntfTypeName), "vga&hdmi");
 	stVoDevParam.m_u32FrameRate = 60;
+	stVoDevParam.m_u32Height = 1080;
 	stVoDevParam.m_u32Width = 1920;
-	stVoDevParam.m_u32Height = 1080;	
 	stVoDevParam.m_u32BgColor = 0x0;
 	stVoDevParam.m_bInterlaced = 0;
 	stVoDevParam.m_u32VoDevID = 1;//HD0
