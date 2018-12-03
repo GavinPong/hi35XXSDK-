@@ -14,6 +14,7 @@ typedef struct _hi_vo_dev_param_s{
 	uint32_t m_u32FrameRate;	//帧率
 	uint32_t m_u32BgColor;		//背景色
 	char m_strIntfTypeName[16];	//接口类型名，如vga,hdmi,cvbs,btt1120	
+	uint8_t m_bInterlaced;		//是否隔行
 }hi_vo_dev_param_t;
 
 //vo视频成参数

@@ -24,4 +24,4 @@ LIBS_LIB += -L/home/share_disk/workspace/thirdlib/mdd
 
 ##########load option#############
 LDFLAGS :=
-LDFLAGS += -lpthread -lm -lstdc++ -lmdd -lmpi -ljpeg -lhdmi -ltde -lupvqe -lVoiceEngine -ldnvqe -ldl
+LDFLAGS += -lpthread -lm -lstdc++ -lmpi -ljpeg -lhdmi -ltde -lupvqe -lVoiceEngine -ldnvqe -ldl

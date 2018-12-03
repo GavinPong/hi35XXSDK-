@@ -3,7 +3,7 @@
 #include "cross_platform.h"
 #include "log.h"
 
-int32_t HI_VO_GetIntSync(VO_INTF_SYNC_E *enIntfSync, uint32_t u32W,uint32_t u32H, uint32_t u32Frm)
+int32_t HI_VO_GetIntSync(VO_INTF_SYNC_E *enIntfSync, uint32_t u32W,uint32_t u32H, uint32_t u32Frm, uint8_t bInterlaced)
 {
 	int32_t ret = 0;
 	if (!enIntfSync)
@@ -14,29 +14,29 @@ int32_t HI_VO_GetIntSync(VO_INTF_SYNC_E *enIntfSync, uint32_t u32W,uint32_t u32H
 		*enIntfSync = VO_OUTPUT_PAL;
 	else if (720 == u32W && 480 == u32H && u32Frm == 30)
 		*enIntfSync = VO_OUTPUT_NTSC;
-	else if (720 == u32W && 576 == u32H && u32Frm == 50)
+	else if (720 == u32W && 576 == u32H && u32Frm == 50 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_576P50;
-	else if (720 == u32W && 480 == u32H && u32Frm == 60)
+	else if (720 == u32W && 480 == u32H && u32Frm == 60 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_480P60;
 	else if (800 == u32W && 600 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_800x600_60;
-	else if (1280 == u32W && 720 == u32H && u32Frm == 50)
+	else if (1280 == u32W && 720 == u32H && u32Frm == 50 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_720P50;
-	else if (1280 == u32W && 720 == u32H && u32Frm == 60)
+	else if (1280 == u32W && 720 == u32H && u32Frm == 60 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_720P60;
-	else if (1920 == u32W && 1080 == u32H && u32Frm == 50)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 50 && 1 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_1080I50;
-	else if (1920 == u32W && 1080 == u32H && u32Frm == 60)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 60 && 1 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_1080I60;
-	else if (1920 == u32W && 1080 == u32H && u32Frm == 24)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 24 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_1080P24;
-	else if (1920 == u32W && 1080 == u32H && u32Frm == 25)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 25 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_1080P25;
-	else if (1920 == u32W && 1080 == u32H && u32Frm == 30)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 30 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_1080P30;
-	else if (1920 == u32W && 1080 == u32H && u32Frm == 50)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 50 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_1080P50;
-	else if (1920 == u32W && 1080 == u32H && u32Frm == 60)
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 60 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_1080P60;
 	else if (1024 == u32W && 768 == u32H && u32Frm == 60)
 		*enIntfSync = VO_OUTPUT_1024x768_60;
@@ -211,7 +211,7 @@ int32_t HI_VO_GetPixelFormat(PIXEL_FORMAT_E *penPixelFormat, const char *strPixe
 
 int32_t HI_VO_GetHdmiVideoFormat(HI_HDMI_VIDEO_FMT_E *enVideoFmt, const char *strIntfSync)
 {
-	if (!enVideoFmt || strIntfSync)
+	if (!enVideoFmt || !strIntfSync)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:param was null!", __FUNCTION__, __LINE__);
 		return -1;
@@ -328,7 +328,7 @@ int32_t HI_VO_StartDev(hi_vo_dev_param_t *pstVoDevParam)
 		return -1;
 	}
 	memset(&stPubAttr, 0, sizeof(stPubAttr));
-	if(HI_VO_GetIntSync(&enIntfSync, pstVoDevParam->m_u32Width, pstVoDevParam->m_u32Height, pstVoDevParam->m_u32FrameRate) < 0)
+	if(HI_VO_GetIntSync(&enIntfSync, pstVoDevParam->m_u32Width, pstVoDevParam->m_u32Height, pstVoDevParam->m_u32FrameRate, pstVoDevParam->m_bInterlaced) < 0)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:failed!", __FUNCTION__, __LINE__);
 		return -2;

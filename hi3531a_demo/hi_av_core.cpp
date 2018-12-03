@@ -8,6 +8,9 @@
 #include "hi_vo.h"
 #include "stddef.h"
 
+#define RED_16 0xFC00
+#define GREEN_16 0x83E0
+#define BLUE_16 0x801F
 
 #define GetVOLayer(voLayer, voDev) do{\
 	if (voDev < 2) voLayer = voDev;\
@@ -36,25 +39,35 @@ static void *s_pVirAddr;			//屏幕物理地址
 
 int32_t DrawLine()
 {
-	int32_t i = 0, j = 0;
+	int32_t i = 1080, y = 800;
 
-	for (i = 300; i < 600; i++)
+	for (;i < 1900;i++)
 	{
-		for (j = 300; j < 600; j++)
-		{
-			*((HI_U16 *)s_pVirAddr + j * s_u32Stride + i) = 0xFC00;//red
-		}
+		*((HI_U16 *)s_pVirAddr + y * (s_u32Stride / 2)+ i) = RED_16;
 	}
 
 	return 0;
 }
 
-int32_t DrawRectangular(int32_t i32X, int32_t i32Y, int32_t i32W, int32_t i32H, HI_U16 *u32VirtualAddr)
+int32_t DrawRectangular(point_t original, int32_t i32W, int32_t i32H, HI_U16 *u32VirtualAddr)
 {
+	int32_t i = 0, j = 0;
+	point_t destination;
+	int step = s_u32Stride/2;
+	
+	destination.m_i32XPos = original.m_i32XPos + i32W;
+	destination.m_i32YPos = original.m_i32YPos + i32H;
 
+	for (i = original.m_i32XPos; i < destination.m_i32XPos; i++)
+	{
+		for (j = original.m_i32YPos; j < destination.m_i32YPos; j++)
+		{
+			*((HI_U16 *)s_pVirAddr + j * step + i) = GREEN_16;
+		}
+	}
 	return 0;
 }
-
+//Radius * Radius = (x - circleCenterX) * (x - circleCenterX) + (y - circleCenterY) * (y - circleCenterY)
 int32_t DrawCircle(int32_t i32X, int32_t i32Y, int32_t i32Radius, HI_U32 *u32VirtualAddr)
 {
 	int32_t i = 0;
@@ -64,11 +77,61 @@ int32_t DrawCircle(int32_t i32X, int32_t i32Y, int32_t i32Radius, HI_U32 *u32Vir
 
 	for(i = dXRangeStart; i < dXRangeEnd;i++)
 	{
-		dYCoor = sqrt(dRadius2 - (i - i32X)) + i32Y;
-
-		*((HI_U16 *)s_pVirAddr + s_u32Stride * dYCoor + i) = 0xFC00;//red
+		//圆形下半部分的圆周
+		dYCoor = sqrt(dRadius2 - (i - i32X) * (i - i32X)) + i32Y;
+		*((HI_U16 *)s_pVirAddr + (s_u32Stride/2) * dYCoor + i) = BLUE_16;
+		//圆形上半部分的圆周
+		dYCoor = i32Y - (dYCoor - i32Y);
+		*((HI_U16 *)s_pVirAddr + (s_u32Stride/2) * dYCoor + i) = BLUE_16;
 	}
 
+	return 0;
+}
+
+int32_t fb_test_start(hi_fb_handle *fb_handle)
+{
+	hi_fb_graphics_layer_param_t stGraphicsLayerParam;
+	hi_fb_handle handle;
+	hi_fb_point_t stPoint = {0,0};
+	hi_fb_screen_info_t stScreenInfo;
+	point_t original = {300, 300};
+
+	if (!fb_handle)
+	{
+		return -1;
+	}
+	GetVoGraphics(stGraphicsLayerParam.m_i32GraphicsLayerID, 1);
+	stGraphicsLayerParam.m_u32BitsPerPixel = 16;
+	stGraphicsLayerParam.m_u32DevDisResWidth = 1920;
+	stGraphicsLayerParam.m_u32DevDisResHeight = 1080;
+	stGraphicsLayerParam.m_u32MaxVirtualResWidth = stGraphicsLayerParam.m_u32DevDisResWidth;
+	stGraphicsLayerParam.m_u32MaxVirtualResHeight = stGraphicsLayerParam.m_u32DevDisResHeight * 2;
+	HI_FB_Init();
+	HI_FB_StartGraphicsLayer(&handle, &stGraphicsLayerParam);
+	HI_FB_GetScreeInfo(handle, &stScreenInfo);
+	s_u32PhyAddr = stScreenInfo.m_u32PhyAddr;
+	s_u32Stride = stScreenInfo.m_u32ScreenStride;
+	s_pVirAddr = stScreenInfo.m_pVirAddr;
+	HI_FB_ShowScreen(handle, 0);
+	HI_FB_SetScreenOrigin(handle, stPoint);
+	DrawLine();
+	DrawCircle(960, 540, 10, (HI_U32 *)s_pVirAddr);
+	DrawCircle(960, 540, 20, (HI_U32 *)s_pVirAddr);
+	DrawCircle(960, 540, 40, (HI_U32 *)s_pVirAddr);
+	DrawCircle(960, 540, 80, (HI_U32 *)s_pVirAddr);
+	DrawCircle(960, 540, 160, (HI_U32 *)s_pVirAddr);
+	DrawCircle(960, 540, 320, (HI_U32 *)s_pVirAddr);
+	DrawRectangular(original, 100, 100, (HI_U16 *)s_pVirAddr);
+	*fb_handle = handle;
+
+	return 0;
+}
+
+int32_t fb_test_stop(hi_fb_handle fb_handle)
+{
+	HI_FB_StopGraphicsLayer(fb_handle);
+	HI_FB_UnInit();
+	
 	return 0;
 }
 
@@ -81,9 +144,6 @@ int32_t main(int argc, char *argv[])
 	hi_vo_layer_param_t stVoLayerParam;
 	hi_hdmi_param_t stHdmiParam;
 	hi_fb_handle fb_handle = 0;
-	hi_fb_graphics_layer_param_t stGraphicsLayerParam;
-	hi_fb_point_t stPoint = {0,0};
-	hi_fb_screen_info_t stScreenInfo;
 
 	HI_SYS_GetvVersion(strSdkVersion, sizeof(strSdkVersion));
 	log_output(LOG_LEVEL_FILE_SCREEN, "%s", strSdkVersion);
@@ -102,10 +162,11 @@ int32_t main(int argc, char *argv[])
 	memset(stVoDevParam.m_strIntfTypeName, 0, sizeof(stVoDevParam.m_strIntfTypeName));
 	plat_sprintf(stVoDevParam.m_strIntfTypeName, sizeof(stVoDevParam.m_strIntfTypeName), "vga&hdmi");
 	stVoDevParam.m_u32FrameRate = 60;
-	stVoDevParam.m_u32Height = 1920;
-	stVoDevParam.m_u32Width = 1080;
+	stVoDevParam.m_u32Width = 1920;
+	stVoDevParam.m_u32Height = 1080;	
 	stVoDevParam.m_u32BgColor = 0x0;
-	stVoDevParam.m_u32VoDevID = 0;//HD0
+	stVoDevParam.m_bInterlaced = 0;
+	stVoDevParam.m_u32VoDevID = 1;//HD0
 	//设备操作
 	HI_VO_StartDev(&stVoDevParam);
 
@@ -131,30 +192,12 @@ int32_t main(int argc, char *argv[])
 	plat_sprintf(stHdmiParam.m_strIntfSync, sizeof(stHdmiParam), "1080P60");
 	HI_VO_StartHdmi(&stHdmiParam);
 	//fb操作
-	GetVoGraphics(stGraphicsLayerParam.m_i32GraphicsLayerID, stVoDevParam.m_u32VoDevID);
-	stGraphicsLayerParam.m_u32BitsPerPixel = 16;
-	stGraphicsLayerParam.m_u32DevDisResWidth = stVoDevParam.m_u32Width;
-	stGraphicsLayerParam.m_u32DevDisResHeight = stVoDevParam.m_u32Height;
-	stGraphicsLayerParam.m_u32MaxVirtualResWidth = stVoDevParam.m_u32Width;
-	stGraphicsLayerParam.m_u32MaxVirtualResHeight = stVoDevParam.m_u32Height * 2;
-	HI_FB_Init();
-	HI_FB_StartGraphicsLayer(&fb_handle, &stGraphicsLayerParam);
-	HI_FB_GetScreeInfo(fb_handle, &stScreenInfo);
-	s_u32PhyAddr = stScreenInfo.m_u32PhyAddr;
-	s_u32Stride = stScreenInfo.m_u32ScreenStride;
-	s_pVirAddr = stScreenInfo.m_pVirAddr;
-	HI_FB_ShowScreen(fb_handle, 0);
-	HI_FB_SetScreenOrigin(fb_handle, stPoint);
-	DrawLine();
-	DrawCircle(58, 58, 28, (HI_U32 *)s_pVirAddr);
-
+	fb_test_start(&fb_handle);
 	while(1)
 	{
 		Msleep(100);
 	}
-
-	HI_FB_StopGraphicsLayer(fb_handle);
-	HI_FB_UnInit();
+	fb_test_stop(fb_handle);
 	HI_VOStopVoLayer(stVoLayerParam.m_i32VoLayerID);
 	HI_VO_StopHdmi(stHdmiParam.m_i32HdmiID);
 	HI_VO_StopDev(stVoDevParam.m_u32VoDevID);

@@ -33,15 +33,16 @@ typedef struct _hi_fb_info_s{
 	int32_t m_i32Fd;						//fb设备句柄
 	char m_strDevName[32];					//设备名
 	hi_fb_pixel_format_e m_enPixFormat;		//像素格式
+	uint32_t m_u32ScreeStride;				//fb屏幕跨度（一行的宽度）
+	uint32_t m_u32PhAddr;					//fb物理地址
+	uint32_t m_smem_len;					//fb内存长度
+	void * m_pVirAddr;						//fb虚拟地址
 }hi_fb_info_t;
 
 typedef struct _hi_fb_ctx_s{
 	hi_fb_inited_e	m_enInited;				//是否初始化标记
 	struct list_head m_strFbInfoListHead;	//管理fb信息链表头
 	pthread_mutex_t m_FbInfoListHeadMutex;	//
-	uint32_t m_u32ScreeStride;				//fb屏幕跨度（一行的宽度）
-	uint32_t m_u32PhAddr;					//fb物理地址
-	void * m_pVirAddr;						//fb虚拟地址
 }hi_fb_ctx_t;
 
 static hi_fb_ctx_t s_stHifbCtx = {};
@@ -328,7 +329,7 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_FB_GetDevName[%d] failed", __FUNCTION__, __LINE__, pstGraphicsLayerParam->m_i32GraphicsLayerID);
 		return -2;
 	}
-	if(!HI_FB_CheckDevStatus(strFbFileName)){
+	if(HI_FB_CheckDevStatus(strFbFileName)){
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s was inited!", __FUNCTION__, __LINE__, strFbFileName);
 		return -3;
 	}
@@ -375,6 +376,15 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 		strVarScreenInfoVar.bits_per_pixel = 16;
 		enPixFormt = HI_FB_PIXEL_FORMAT_ARGB1555;
 	}
+#if 1
+	printf("=================================\n");
+	printf("xres_virtual:%u\n",strVarScreenInfoVar.xres_virtual);
+	printf("yres_virtual:%u\n",strVarScreenInfoVar.yres_virtual);
+	printf("xres:%u\n",strVarScreenInfoVar.xres);
+	printf("yres:%u\n",strVarScreenInfoVar.yres);
+	printf("bits_per_pixel:%u\n",strVarScreenInfoVar.bits_per_pixel);
+	printf("=================================\n");
+#endif
 	strVarScreenInfoVar.activate = FB_ACTIVATE_NOW;
 	if (ioctl(i32Fd, FBIOPUT_VSCREENINFO, &strVarScreenInfoVar) < 0)
 	{
@@ -396,9 +406,6 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 		close(i32Fd);
         return -8;
     }
-	s_stHifbCtx.m_pVirAddr = pShowScreen;
-	s_stHifbCtx.m_u32PhAddr = (uint32_t)strFixScreenInfo.smem_start;
-	s_stHifbCtx.m_u32ScreeStride = strFixScreenInfo.line_length;
     memset(pShowScreen, 0x00, strFixScreenInfo.smem_len);
 	if (ioctl(i32Fd, FBIOPUT_SCREEN_ORIGIN_HIFB, &stPoint) < 0)
 	{
@@ -416,7 +423,7 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 		close(i32Fd);
 		return -10;
     }
-	munmap(pShowScreen, strFixScreenInfo.smem_len);
+	//munmap(pShowScreen, strFixScreenInfo.smem_len);
 	//7：申请存储fb设备信息的资源，并存储fb信息
 	pstfbInfo = (hi_fb_info_t *)calloc(1, sizeof(hi_fb_info_t));
 	if (!pstfbInfo)
@@ -427,6 +434,10 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 	plat_sprintf(pstfbInfo->m_strDevName, sizeof(pstfbInfo->m_strDevName), "%s", strFbFileName);
 	pstfbInfo->m_i32Fd = i32Fd;
 	pstfbInfo->m_enPixFormat = enPixFormt;
+	pstfbInfo->m_pVirAddr = pShowScreen;
+	pstfbInfo->m_u32PhAddr = (uint32_t)strFixScreenInfo.smem_start;
+	pstfbInfo->m_u32ScreeStride = (uint32_t)strFixScreenInfo.line_length;
+	pstfbInfo->m_smem_len = (uint32_t)strFixScreenInfo.smem_len;
 	pthread_mutex_lock(&s_stHifbCtx.m_FbInfoListHeadMutex);
 	list_add(&pstfbInfo->m_stListNode, &s_stHifbCtx.m_strFbInfoListHead);
 	pthread_mutex_unlock(&s_stHifbCtx.m_FbInfoListHeadMutex);
@@ -435,7 +446,7 @@ int32_t HI_FB_StartGraphicsLayer(hi_fb_handle *fb_handle, hi_fb_graphics_layer_p
 	return 0;
 }
 
-int32_t HI_FB_StopGraphicsLayer(hi_fb_handle *fb_handle)
+int32_t HI_FB_StopGraphicsLayer(hi_fb_handle fb_handle)
 {
 	HI_BOOL bShow;
 	hi_fb_info_t *pstHiFbInfo = NULL, *pos, *n;
@@ -447,8 +458,13 @@ int32_t HI_FB_StopGraphicsLayer(hi_fb_handle *fb_handle)
 	{
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:%s hide screen failed!", __FUNCTION__, __LINE__, pstHiFbInfo->m_strDevName);
 	}
-	close(pstHiFbInfo->m_i32Fd);
-	pstHiFbInfo->m_i32Fd = -1;
+	if (pstHiFbInfo->m_i32Fd > 0)
+	{
+		close(pstHiFbInfo->m_i32Fd);
+		pstHiFbInfo->m_i32Fd = -1;
+	}
+	if(pstHiFbInfo->m_pVirAddr)
+		munmap(pstHiFbInfo->m_pVirAddr, pstHiFbInfo->m_smem_len);
 	pthread_mutex_lock(&s_stHifbCtx.m_FbInfoListHeadMutex);
 	head = &s_stHifbCtx.m_strFbInfoListHead;
 	list_for_each_entry_safe(hi_fb_info_t, pos, n, head, m_stListNode){
@@ -518,9 +534,9 @@ int32_t HI_FB_GetScreeInfo(hi_fb_handle fb_handle, hi_fb_screen_info_t *pstScree
 	pstScreenInfo->m_u32DisResHeight = stVarScreenInfo.yres;
 	pstScreenInfo->m_u32MaxVirtualResWidth = stVarScreenInfo.xres_virtual;
 	pstScreenInfo->m_u32MaxVirtualResHeight = stVarScreenInfo.yres_virtual;
-	pstScreenInfo->m_u32PhyAddr = s_stHifbCtx.m_u32PhAddr;
-	pstScreenInfo->m_pVirAddr = s_stHifbCtx.m_pVirAddr;
-	pstScreenInfo->m_u32ScreenStride = s_stHifbCtx.m_u32ScreeStride;
+	pstScreenInfo->m_u32PhyAddr = pstHiFbInfo->m_u32PhAddr;
+	pstScreenInfo->m_pVirAddr = pstHiFbInfo->m_pVirAddr;
+	pstScreenInfo->m_u32ScreenStride = pstHiFbInfo->m_u32ScreeStride;
 	return 0;
 }
 

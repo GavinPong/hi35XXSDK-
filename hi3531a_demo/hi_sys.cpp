@@ -105,5 +105,6 @@ int32_t HI_SYS_GetvVersion(char *pstrOutBuf, int32_t i32BufSize)
 		log_output(LOG_LEVEL_NET_SCREEN, "%s->%d:HI_MPI_SYS_GetVersion failed width:0x%x!", __FUNCTION__, __LINE__, s32Ret);
 		return -2;
 	}
+	plat_sprintf(pstrOutBuf, i32BufSize, "%s", stMppVersion.aVersion);
 	return 0;
 }
