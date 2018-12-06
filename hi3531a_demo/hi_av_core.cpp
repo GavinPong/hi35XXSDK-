@@ -42,7 +42,7 @@ int32_t DrawLine(point_t stOriginal, point_t stDestination)
 	int32_t i, j;
 	double k = (double)(stDestination.m_i32YPos - stOriginal.m_i32YPos) / (stDestination.m_i32XPos - stOriginal.m_i32XPos);
 	int32_t i32OrigiX = 0, i32EndX = 0;
-	int32_t i32OrigiY = 0, i32EndY = 0;
+	int32_t i32OrigiY = 0/*, i32EndY = 0*/;
 #if 0
 	printf("=====================\n");
 	printf("k:%lf [%d,%d] [%d,%d]\n",k, stOriginal.m_i32XPos,stOriginal.m_i32YPos, stDestination.m_i32XPos,stDestination.m_i32YPos);
@@ -53,14 +53,14 @@ int32_t DrawLine(point_t stOriginal, point_t stDestination)
 		i32OrigiX = stOriginal.m_i32XPos;
 		i32EndX = stDestination.m_i32XPos;
 		i32OrigiY = stOriginal.m_i32YPos;
-		i32EndY = stDestination.m_i32YPos;
+		//i32EndY = stDestination.m_i32YPos;
 	}
 	else
 	{
 		i32OrigiX = stDestination.m_i32XPos;
 		i32EndX = stOriginal.m_i32XPos;
 		i32OrigiY = stDestination.m_i32YPos;
-		i32EndY = stOriginal.m_i32YPos;
+		//i32EndY = stOriginal.m_i32YPos;
 	}
 	for (i = i32OrigiX;i < i32EndX;i++)
 	{
