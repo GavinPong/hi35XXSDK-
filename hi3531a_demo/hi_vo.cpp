@@ -26,8 +26,8 @@ int32_t HI_VO_GetIntSync(VO_INTF_SYNC_E *enIntfSync, uint32_t u32W,uint32_t u32H
 		*enIntfSync = VO_OUTPUT_720P60;
 	else if (1920 == u32W && 1080 == u32H && u32Frm == 50 && 1 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_1080I50;
-	else if (1920 == u32W && 1080 == u32H && u32Frm == 60 && 1 == bInterlaced)
-		*enIntfSync = VO_OUTPUT_1080I60;
+	else if (1920 == u32W && 1080 == u32H && u32Frm == 60 && 0 == bInterlaced)
+		*enIntfSync = VO_OUTPUT_1080P60;//VO_OUTPUT_1080I60;
 	else if (1920 == u32W && 1080 == u32H && u32Frm == 24 && 0 == bInterlaced)
 		*enIntfSync = VO_OUTPUT_1080P24;
 	else if (1920 == u32W && 1080 == u32H && u32Frm == 25 && 0 == bInterlaced)

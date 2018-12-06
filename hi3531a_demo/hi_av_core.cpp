@@ -98,9 +98,30 @@ int32_t DrawRectangular(point_t original, int32_t i32W, int32_t i32H, HI_U16 *u3
 int32_t DrawCircle(int32_t i32X, int32_t i32Y, int32_t i32Radius, HI_U32 *u32VirtualAddr)
 {
 	int32_t i = 0;
+	int32_t dYCoor = 0;
+
+	if(i32X < i32Radius && i32Y < i32Radius) 
+	{
+		if (i32X > i32Y)
+		{
+			i32Radius = i32Y;
+		}
+		else
+		{
+			i32Radius = i32X;
+		}	
+	}
+	else if (i32X < i32Radius)
+	{
+		i32Radius = i32X;
+	}
+	else if (i32Y < i32Radius)
+	{
+		i32Radius = i32Y;
+	}
+	
 	double dRadius2 = i32Radius * i32Radius;
 	double dXRangeStart = i32X - i32Radius, dXRangeEnd = i32X + i32Radius; 
-	int32_t dYCoor = 0;
 
 	for(i = dXRangeStart; i < dXRangeEnd;i++)
 	{
@@ -157,6 +178,8 @@ int32_t fb_test_start(hi_fb_handle *fb_handle)
 #endif
 	Msleep(1000 * 2);
 	DrawLine(stLineOriginal, stLineDestination);
+	Msleep(1000 * 2);
+	DrawCircle(50, 68, 100, (HI_U32 *)s_pVirAddr);
 	Msleep(1000 * 2);
 	DrawCircle(960, 540, 10, (HI_U32 *)s_pVirAddr);
 	Msleep(1000 * 2);
